@@ -1,0 +1,26 @@
+services:
+  resumable-upload:
+    build: .
+    image: resumable-upload:latest
+    ports:
+      - "8000:8000"
+    environment:
+      # All configuration is optional; the defaults below are shown.
+      STORAGE_DIR: /data
+      DATABASE_PATH: /data/app.db
+      SESSION_TTL_SECONDS: "86400"
+      CLEANUP_INTERVAL_SECONDS: "300"
+      MAX_FILE_SIZE: "0"        # 0 = unlimited, bytes
+      MAX_CHUNK_SIZE: "0"       # 0 = unlimited, bytes
+    volumes:
+      - upload-data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health')"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 5s
+
+volumes:
+  upload-data:
